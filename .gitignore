@@ -8,8 +8,8 @@ build/
 *.iml
 out/
 
-# 发布用二进制 jar（改走 GitHub Releases）
-ported/*.jar
+# 交付/分发目录（jar 走 GitHub Releases，不入库）
+ported/
 
 # 调试日志
 *.log
