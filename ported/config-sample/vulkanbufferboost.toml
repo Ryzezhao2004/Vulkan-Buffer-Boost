@@ -1,0 +1,15 @@
+# VulkanBufferBoost 配置样例（仅供习惯手写者参考）
+#
+# 正常情况下你不需要本文件——在游戏内「模组 → VulkanBufferBoost → Config」里改完点保存，
+# NeoForge 会自动把内容写入 <游戏目录>/config/ 下它管理的 *.toml（文件名可能带 -mod 后缀，
+# 以实际出现为准）。这里给出的是等价结构，方便你想直接改文件时对照。
+
+enabled=true
+sourceSize="98 MiB"          # 26.3 的原始常量（102760448 字节），一般无需改
+targetSize="128 MiB"         # 目标值，默认 128 MiB；可写 256MB / 1GiB 等直观单位，也可写裸字节 134217728
+debug=false
+
+# 说明：
+# - 走 PersistentlyMapped 路径时，单次 tryAppend 上限 = targetSize / 2（默认即 64 MiB）。
+#   若仍崩溃报 "staging buffer of size 51380224"，把 targetSize 提到 256 MiB 或更大。
+# - 修改后必须完全重启游戏。

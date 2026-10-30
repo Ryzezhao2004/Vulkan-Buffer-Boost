@@ -1,0 +1,106 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.148'
+}
+
+/*
+ * neoforge：NeoForge 26.3 入口模块。最终产物是单一扁平 mod JAR。
+ *
+ * 改写机制：Mixin（由 NeoForge 启动管线在游戏类加载前装配），无需任何启动参数。
+ * 配置走 NeoForge 游戏内 ModConfig（Type.MOD），玩家在模组列表详情页的 Config 按钮即可编辑，
+ * 配置实现位于本模块的 BoostConfig；common 仅提供离线 ASM 验证工具（不参与线上改写）。
+ */
+
+configurations {
+    // 打进最终 JAR 的运行时内容（common 的配置类）
+    embedded
+    compileOnly.extendsFrom embedded
+}
+
+dependencies {
+    embedded project(':common')
+}
+
+neoForge {
+    version = project.neo_version
+
+    // 只保留客户端运行配置：本模组在专用服务器上无意义（服务端不加载 blaze3d）
+    runs {
+        client {
+            client()
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+// 展开 neoforge.mods.toml 中的占位符
+var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+    ]
+    inputs.properties replaceProperties
+    // 显式指定 UTF-8：默认的 filteringCharset 是平台编码（Windows 为 GBK），会把中文描述写成乱码
+    filteringCharset = 'UTF-8'
+    expand replaceProperties
+    from 'src/main/templates'
+    into layout.buildDirectory.dir('generated/sources/modMetadata')
+}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.named('jar', Jar) {
+    archiveBaseName = 'vulkanbufferboost'
+
+    // 显式声明对 common:jar 的依赖，避免 Gradle 9 的隐式依赖校验报错
+    dependsOn configurations.embedded
+
+    // 扁平合并 common 的类：FML 只把「mods 目录里的那个 JAR」加进模块层，嵌套 JAR 里的类在那里不可见。
+    from({ configurations.embedded.collect { zipTree(it) } }) {
+        exclude 'META-INF/MANIFEST.MF'
+        exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+        exclude 'module-info.class'
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes(
+                'Implementation-Title'  : project.mod_name,
+                'Implementation-Version': project.version
+        )
+    }
+
+    doLast {
+        // 交付前自检：mixin 配置、mixin 类、游戏内配置类缺一不可。
+        // 注：NeoForge 26.3 通过运行时统一映射把 Mixin 目标类名从官方名解析为混淆运行时名，
+        //     因此模组 JAR 无需自带 refmap（这也是 moddev 2.0.148 不生成它的原因）。
+        def jarFile = archiveFile.get().asFile
+        new java.util.zip.ZipFile(jarFile).withCloseable { zip ->
+            def required = [
+                    'vulkanbufferboost.mixins.json',
+                    'META-INF/neoforge.mods.toml',
+                    'com/vulkanbufferboost/neoforge/mixin/SectionRenderDispatcherMixin.class',
+                    'com/vulkanbufferboost/neoforge/BoostConfig.class',
+                    'assets/vulkanbufferboost/lang/en_us.json',
+                    'assets/vulkanbufferboost/lang/zh_cn.json'
+            ]
+            required.each { entry ->
+                if (zip.getEntry(entry) == null) {
+                    throw new GradleException("打包校验失败：JAR 缺少 " + entry)
+                }
+            }
+        }
+    }
+}

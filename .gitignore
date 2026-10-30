@@ -1,0 +1,21 @@
+# Gradle 构建产物
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+out/
+
+# 发布用二进制 jar（改走 GitHub Releases）
+ported/*.jar
+
+# 调试日志
+*.log
+
+# 内部文档（非对外公开内容）
+评估报告.md
+
+# 系统文件
+.DS_Store

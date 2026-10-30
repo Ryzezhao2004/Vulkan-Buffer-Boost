@@ -1,0 +1,48 @@
+allprojects {
+    group = project.mod_group_id
+    version = project.mod_version
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'java-library'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.release = 25
+    }
+}
+
+/**
+ * 交付汇总：把可发布的 mod JAR 平铺到 ported/ 根目录，便于直接取用。
+ * common 已扁平合并进 neoforge JAR，无需单独分发。
+ */
+tasks.register('dist', Copy) {
+    group = 'distribution'
+    description = '汇总最终 JAR 到 ported/'
+
+    dependsOn ':neoforge:jar'
+
+    from(project(':neoforge').layout.buildDirectory.dir('libs')) {
+        include '*.jar'
+        exclude '*-sources.jar', '*-javadoc.jar'
+    }
+    into rootProject.layout.projectDirectory.dir('ported')
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+tasks.register('cleanPorted', Delete) {
+    delete rootProject.layout.projectDirectory.dir('ported')
+    doLast {
+        rootProject.layout.projectDirectory.dir('ported').getAsFile().mkdirs()
+    }
+}

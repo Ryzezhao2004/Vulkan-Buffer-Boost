@@ -1,0 +1,12 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.vulkanbufferboost.neoforge.mixin",
+  "mixins": [],
+  "client": [
+    "SectionRenderDispatcherMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

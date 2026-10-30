@@ -1,0 +1,46 @@
+plugins {
+    id 'java-library'
+}
+
+/*
+ * common：纯 Java 的配置与离线验证工具，不依赖任何 Minecraft / NeoForge 类型。
+ * 之所以保持零游戏依赖，是为了让同一个类既能随模组（扁平合并进 neoforge JAR）被 FML 模块层加载，
+ * 也能在 test 里脱离游戏独立运行。
+ *
+ * ASM 仅在 test 源码中使用（StagingBufferSizeTransformer / 其离线验证器），因此只声明为 testImplementation，
+ * 不会进入最终 mod JAR——线上的实际改写由 neoforge 模块的 Mixin 完成。
+ */
+
+dependencies {
+    testImplementation 'org.ow2.asm:asm:9.10.1'
+}
+
+tasks.named('jar', Jar) {
+    archiveBaseName = 'vulkanbufferboost-common'
+
+    manifest {
+        attributes(
+                'Implementation-Title'  : 'VulkanBufferBoost Common',
+                'Implementation-Version': project.version
+        )
+    }
+}
+
+tasks.named('test') {
+    // 本模块没有 @Test 用例（离线验证走 verifyBytecodePatch），避免「未发现测试」报错中断构建
+    failOnNoDiscoveredTests = false
+}
+
+// 离线验证 ASM 常量替换逻辑（不启动游戏、不依赖 JUnit）。
+// 用纯 main 程序 + JavaExec 实现，避免引入离线环境无法获取的测试框架依赖。
+tasks.register('verifyBytecodePatch', JavaExec) {
+    group = 'verification'
+    description = '离线验证 ASM 常量替换逻辑（不启动游戏）'
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.vulkanbufferboost.agent.StagingBufferSizeTransformerVerifier'
+    dependsOn compileTestJava
+}
+
+tasks.named('check') {
+    dependsOn 'verifyBytecodePatch'
+}

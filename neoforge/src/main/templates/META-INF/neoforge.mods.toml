@@ -1,0 +1,29 @@
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+description='''
+通过 Mixin 在类加载阶段改写 Minecraft 26.3 区块渲染暂存缓冲区（StagingBuffer）的大小上限，
+用于规避 "Cannot fit allocation" 崩溃。
+'''
+
+[[mixins]]
+config = "vulkanbufferboost.mixins.json"
+side = "client"
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="${neo_version_range}"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="CLIENT"

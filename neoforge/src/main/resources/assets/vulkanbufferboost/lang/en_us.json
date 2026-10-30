@@ -1,0 +1,18 @@
+{
+  "vulkanbufferboost.configuration.title": "VulkanBufferBoost Settings",
+
+  "vulkanbufferboost.configuration.enabled": "Enable Buffer Rewrite",
+  "vulkanbufferboost.configuration.enabled.tooltip": "Whether to rewrite the chunk rendering staging buffer size. When disabled, the buffer size is left untouched.",
+
+  "vulkanbufferboost.configuration.sourceSize": "Original Constant Size",
+  "vulkanbufferboost.configuration.sourceSize.tooltip": "The original constant that gets replaced (98 MiB in 26.3). Rarely needs changing. Accepts units such as 98 MiB / 100MB, or raw bytes such as 102760448.",
+
+  "vulkanbufferboost.configuration.targetSize": "Target Buffer Size",
+  "vulkanbufferboost.configuration.targetSize.tooltip": "The buffer size to replace it with. Accepts units such as 128 MiB / 256MB / 1GiB, or raw bytes. In CPU staging mode the single tryAppend limit equals targetSize; in PersistentlyMapped mode the limit equals targetSize / 2. Defaults to 128 MiB. Increase it if crashes persist.",
+
+  "vulkanbufferboost.configuration.debug": "Verbose Logging",
+  "vulkanbufferboost.configuration.debug.tooltip": "Print detailed logs.",
+
+  "vulkanbufferboost.configuration.restart.game.title": "Restart required",
+  "vulkanbufferboost.configuration.restart.game.text": "VulkanBufferBoost reads its configuration when the buffer is first rewritten. Fully restart the game for changes to take effect."
+}

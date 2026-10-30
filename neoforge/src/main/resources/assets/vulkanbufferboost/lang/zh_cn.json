@@ -1,0 +1,18 @@
+{
+  "vulkanbufferboost.configuration.title": "VulkanBufferBoost 设置",
+
+  "vulkanbufferboost.configuration.enabled": "启用缓冲区改写",
+  "vulkanbufferboost.configuration.enabled.tooltip": "是否启用字节码改写。关闭后不会修改区块渲染暂存缓冲区大小。本配置在进入世界、首次改写缓冲区时读取，修改后需要完全重启游戏才会生效。",
+
+  "vulkanbufferboost.configuration.sourceSize": "原始常量大小",
+  "vulkanbufferboost.configuration.sourceSize.tooltip": "需要被替换掉的原始常量（26.3 为 98 MiB）。一般无需修改。支持单位写法：如 98 MiB / 100MB，或裸字节（如 102760448）。修改后需要完全重启游戏才会生效。",
+
+  "vulkanbufferboost.configuration.targetSize": "目标缓冲区大小",
+  "vulkanbufferboost.configuration.targetSize.tooltip": "替换后的目标缓冲区大小。可直接写直观单位（如 128 MiB / 256MB / 1GiB），也可写裸字节。CPU 暂存模式下单次 tryAppend 上限 = targetSize；PersistentlyMapped 模式下上限 = targetSize / 2（MappableRingBuffer 以 bufferSize/2 建多个缓冲）。默认 128 MiB。若仍崩溃，请调大（如 256 MiB / 512 MiB）。修改后需要完全重启游戏才会生效。",
+
+  "vulkanbufferboost.configuration.debug": "输出详细日志",
+  "vulkanbufferboost.configuration.debug.tooltip": "输出详细日志。",
+
+  "vulkanbufferboost.configuration.restart.game.title": "需要重启游戏",
+  "vulkanbufferboost.configuration.restart.game.text": "VulkanBufferBoost 在首次改写缓冲区时读取配置。修改后需要完全重启游戏才会生效。"
+}
